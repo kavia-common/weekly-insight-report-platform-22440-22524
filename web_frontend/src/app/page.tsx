@@ -1,9 +1,24 @@
+"use client";
+
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+import { useAuth } from "@/lib/auth";
+
 export default function Home() {
+  const { user, loading } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!loading) {
+      router.replace(user ? "/dashboard" : "/sign-in");
+    }
+  }, [loading, user, router]);
+
   return (
-    <main className="min-h-screen bg-white flex items-center justify-center">
-      <h1 className="text-black text-4xl font-light">
-        web_frontend is being generated
-      </h1>
+    <main className="min-h-screen flex items-center justify-center">
+      <div className="card p-6">
+        <div className="animate-pulse">Loading...</div>
+      </div>
     </main>
   );
 }

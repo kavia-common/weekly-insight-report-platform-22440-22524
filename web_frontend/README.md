@@ -1,36 +1,70 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# DigitalT3 Weekly Report Platform – Frontend (Mock)
 
-## Getting Started
+A functional Next.js App Router frontend with a centralized API client, mock adapters, role-aware layout, and Ocean Professional theme. No backend is required to run in mock mode.
 
-First, run the development server:
+## Quick Start
 
+1. Install dependencies
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Run dev server
+```bash
+npm run dev
+```
+Open http://localhost:3000
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Feature Flags and Mocks
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- NEXT_PUBLIC_USE_MOCKS=true enables local in-memory mock APIs (default).
+- NEXT_PUBLIC_FEATURE_FLAGS='{"aiSummarize": true}' toggles optional UI.
+- NEXT_PUBLIC_EXPERIMENTS_ENABLED=true enables experimental UI badges.
 
-## Learn More
+Example `.env.local`:
+```
+NEXT_PUBLIC_USE_MOCKS=true
+NEXT_PUBLIC_FEATURE_FLAGS={"aiSummarize":true}
+NEXT_PUBLIC_EXPERIMENTS_ENABLED=false
+NEXT_PUBLIC_API_BASE=
+```
 
-To learn more about Next.js, take a look at the following resources:
+To wire real APIs later, set:
+```
+NEXT_PUBLIC_USE_MOCKS=false
+NEXT_PUBLIC_API_BASE=https://your-backend.example.com
+```
+Then implement real endpoints inside `src/lib/apiClient.ts` (http method) as needed. All pages call through `apiClient`.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## App Structure
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- src/lib
+  - apiClient.ts – single entry for API calls (mock switch via env)
+  - auth.tsx – mock session provider and guard hooks
+  - config.ts – env and flags
+  - logger.ts – leveled logger
+  - mockDB.ts – in-memory data store (reports, users)
+  - types.ts – shared types
+  - toast.tsx – global toasts
+- src/components
+  - AppLayout.tsx – left navigation + header, role-aware links
+- src/app
+  - sign-in – mock auth with role selection
+  - dashboard – mock metrics and highlights
+  - reports – list, create, edit with auto-save, submit, AI summarize, export/share toasts
+  - history – paginated list view
+  - admin – appears for Admin role
+  - loading.tsx – global loading UI
+  - not-found.tsx – 404 page
 
-## Deploy on Vercel
+## Design
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- Ocean Professional theme with blue (#2563EB) and amber (#F59E0B) accents, subtle gradients, rounded corners, and responsive layout.
+- Accessible labels, roles, and focus states.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Notes
+
+- No tokens are stored; session is simulated in-memory.
+- SSR-compatible: no static export; app can be adapted for real auth by implementing server routes or middleware later.
+- All API interactions flow through `apiClient`. Replace mock calls with real endpoints when backend is ready.
+
