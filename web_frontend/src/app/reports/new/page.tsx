@@ -5,6 +5,16 @@ import Link from "next/link";
 import AuthGuard from "@/components/auth/AuthGuard";
 import { apiPost } from "@/lib/apiClient";
 
+function startOfCurrentWeekMondayISO(): string {
+  const now = new Date();
+  const day = now.getDay(); // 0=Sun..6=Sat
+  const diffToMonday = (day + 6) % 7; // days since Monday
+  const monday = new Date(now);
+  monday.setHours(0, 0, 0, 0);
+  monday.setDate(now.getDate() - diffToMonday);
+  return monday.toISOString().slice(0, 10); // YYYY-MM-DD
+}
+
 export default function NewReportPage() {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
@@ -18,9 +28,10 @@ export default function NewReportPage() {
 
     timer.current = setTimeout(async () => {
       setSaving("saving");
-      const res = await apiPost<{ id: string }>("/reports/drafts", {
-        title,
-        content,
+      const weekStart = startOfCurrentWeekMondayISO();
+      const res = await apiPost<{ report: { _id: string } }>("/reports/draft", {
+        weekStart,
+        content: { title, content },
       });
       setSaving(res.ok ? "saved" : "error");
       setTimeout(() => setSaving("idle"), 1500);

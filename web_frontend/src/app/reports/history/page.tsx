@@ -21,8 +21,8 @@ export default function ReportsHistoryPage() {
   useEffect(() => {
     let mounted = true;
     (async () => {
-      const res = await apiGet<HistoryItem[]>("/reports/history");
-      if (mounted && res.ok && res.data) setItems(res.data);
+      const res = await apiGet<{ items: HistoryItem[] }>("/reports/history");
+      if (mounted && res.ok && res.data) setItems(res.data.items || []);
       setLoading(false);
     })();
     return () => {

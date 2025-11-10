@@ -3,7 +3,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import AuthGuard from "@/components/auth/AuthGuard";
-import { apiGet, apiPatch } from "@/lib/apiClient";
+import { apiGet, apiPost } from "@/lib/apiClient";
 import { useParams } from "next/navigation";
 
 type Report = {
@@ -11,7 +11,20 @@ type Report = {
   title: string;
   content: string;
   updatedAt: string;
+  weekStart: string;
+  status: "DRAFT" | "SUBMITTED";
 };
+
+function mapBackendReport(data: any): Report {
+  return {
+    id: data._id || data.id,
+    title: data.current?.title || data.title || "Untitled",
+    content: data.current?.content || data.content || "",
+    updatedAt: data.updatedAt || new Date().toISOString(),
+    weekStart: (data.weekStart && new Date(data.weekStart).toISOString().slice(0, 10)) || new Date().toISOString().slice(0, 10),
+    status: (data.status === "submitted" ? "SUBMITTED" : "DRAFT") as "DRAFT" | "SUBMITTED",
+  };
+}
 
 export default function ReportEditPage() {
   const params = useParams<{ id: string }>();
@@ -24,24 +37,24 @@ export default function ReportEditPage() {
   useEffect(() => {
     let mounted = true;
     (async () => {
-      const res = await apiGet<Report>(`/reports/${id}`);
-      if (mounted && res.ok && res.data) setReport(res.data);
+      const res = await apiGet<{ report: any }>(`/reports/${id}`);
+      if (mounted && res.ok && res.data && res.data.report) setReport(mapBackendReport(res.data.report));
     })();
     return () => {
       mounted = false;
     };
   }, [id]);
 
-  // Autosave on change
+  // Autosave on change (uses upsertDraft by weekStart)
   useEffect(() => {
     if (!report) return;
     if (timer.current) clearTimeout(timer.current);
 
     timer.current = setTimeout(async () => {
       setSaving("saving");
-      const res = await apiPatch<Report>(`/reports/${id}`, {
-        title: report.title,
-        content: report.content,
+      const res = await apiPost<{ report: any }>(`/reports/draft`, {
+        weekStart: report.weekStart,
+        content: { title: report.title, content: report.content },
       });
       setSaving(res.ok ? "saved" : "error");
       setTimeout(() => setSaving("idle"), 1200);
@@ -50,7 +63,7 @@ export default function ReportEditPage() {
     return () => {
       if (timer.current) clearTimeout(timer.current);
     };
-  }, [report, id]);
+  }, [report]);
 
   return (
     <AuthGuard>

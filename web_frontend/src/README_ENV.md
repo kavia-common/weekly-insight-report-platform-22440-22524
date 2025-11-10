@@ -6,5 +6,6 @@ Required public environment variables (set via .env by orchestrator):
 - NEXT_PUBLIC_WS_URL: Optional WebSocket base URL
 - NEXT_PUBLIC_NODE_ENV: Environment (development, production)
 - NEXT_PUBLIC_LOG_LEVEL: Optional log level
+- NEXT_PUBLIC_MOCK_AUTH: "true" to show dev mock login UI (works only if backend MOCK_AUTH=true)
 
 The frontend never hardcodes localhost; all backend requests and SSO links derive from the above variables.

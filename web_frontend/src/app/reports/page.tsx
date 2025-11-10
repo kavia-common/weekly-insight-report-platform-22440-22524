@@ -19,8 +19,17 @@ export default function ReportsPage() {
   useEffect(() => {
     let mounted = true;
     (async () => {
-      const res = await apiGet<ReportListItem[]>("/reports");
-      if (mounted && res.ok && res.data) setItems(res.data);
+      // Backend returns { reports: Report[], ... }
+      const res = await apiGet<{ reports: any[] }>("/reports/me");
+      if (mounted && res.ok && res.data) {
+        const mapped = (res.data.reports || []).map((r: any) => ({
+          id: r._id || r.id,
+          title: r.current?.title || r.title || "Untitled",
+          updatedAt: r.updatedAt || new Date().toISOString(),
+          status: (r.status === "submitted" ? "SUBMITTED" : "DRAFT") as "DRAFT" | "SUBMITTED",
+        })) as ReportListItem[];
+        setItems(mapped);
+      }
       setLoading(false);
     })();
     return () => {
