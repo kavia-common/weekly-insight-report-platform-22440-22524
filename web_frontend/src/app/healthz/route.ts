@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
 
-// Ensure this route is statically exported in output: \"export\" builds
+/**
+ * Health check endpoint.
+ * In server mode, this is a dynamic route.
+ * For static export, we force static so `next export` can generate it under /out/healthz.
+ */
 export const dynamic = "force-static";
 export const revalidate = 0;
 

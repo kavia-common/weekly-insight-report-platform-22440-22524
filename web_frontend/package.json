@@ -3,9 +3,12 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "PORT=${NEXT_PUBLIC_PORT:-3000} HOST=0.0.0.0 next dev -p ${NEXT_PUBLIC_PORT:-3000} -H 0.0.0.0",
+    "predev": "tsc -p tsconfig.json || true",
+    "dev": "PORT=${NEXT_PUBLIC_PORT:-3000} HOST=0.0.0.0 node -e \"require('./dist/startup-log.js')\" || true && next dev -p ${NEXT_PUBLIC_PORT:-3000} -H 0.0.0.0",
     "build": "next build",
-    "start": "PORT=${NEXT_PUBLIC_PORT:-3000} HOST=0.0.0.0 next start -p ${NEXT_PUBLIC_PORT:-3000} -H 0.0.0.0",
+    "prestart": "tsc -p tsconfig.json || true",
+    "start": "PORT=${NEXT_PUBLIC_PORT:-3000} HOST=0.0.0.0 node -e \"require('./dist/startup-log.js')\" || true && next start -p ${NEXT_PUBLIC_PORT:-3000} -H 0.0.0.0",
+    "export": "next build && next export -o out",
     "lint": "next lint"
   },
   "dependencies": {
@@ -22,6 +25,7 @@
     "tailwindcss": "^4",
     "eslint": "^9",
     "eslint-config-next": "15.2.1",
-    "@eslint/eslintrc": "^3"
+    "@eslint/eslintrc": "^3",
+    "ts-node": "^10.9.2"
   }
 }
